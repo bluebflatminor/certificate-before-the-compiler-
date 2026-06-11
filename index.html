@@ -54,6 +54,10 @@
     margin: 0 0 1rem;
   }
   pre code { background: none; padding: 0; }
+  @media (max-width: 480px) {
+    pre { font-size: 12.5px; padding: .75rem; }
+    pre code { font-size: 12.5px; }
+  }
   .certificate {
     border: 1px solid var(--cert-edge);
     border-left: 4px solid var(--cert-edge);
@@ -125,48 +129,60 @@ run(U)       -&gt; X               # (T, n_in) input  -&gt; (T, N) state matrix
 report()     -&gt; Certificate     # current certificate + drift since calibrate()</code></pre>
   <p>Real implementations will add reset, synchronization, streaming, buffer management, and encoder configuration; none of that moves where the content lives. Everything contentful is in the <code>Certificate</code>. A schema sketch (field names indicative, not final):</p>
 <pre><code>{
-  "operating_point":  { "drive_power": ..., "bias": ..., "temperature": ...,
-                        "input_ensembles": ["iid_uniform[-1,1]",
-                                            "ar1_bandlimited(rho=0.9)"],
-                        "bandwidth_window_Hz": [f_min, f_max],
-                        "input_transfer": { "encoder": "EOM | SLM | DAC",
-                                            "bandwidth_Hz": ...,
-                                            "memory": ...,
-                                            "crosstalk": ... } },
+  "operating_point": {
+    "drive_power": ..., "bias": ...,
+    "temperature": ...,
+    "input_ensembles": [
+      "iid_uniform[-1,1]",
+      "ar1_bandlimited(rho=0.9)" ],
+    "bandwidth_window_Hz": [f_min, f_max],
+    "input_transfer": {
+      "encoder": "EOM | SLM | DAC",
+      "bandwidth_Hz": ...,
+      "memory": ..., "crosstalk": ... } },
 
-  "clause_5_consistency": {                          // CORE -- evaluate FIRST
-      "replica_correlation": ...,
-      "validity_interval_s": ...,
-      "recalibration_trigger": "..." },
+  // CORE -- evaluate FIRST
+  "clause_5_consistency": {
+    "replica_correlation": ...,
+    "validity_interval_s": ...,
+    "recalibration_trigger": "..." },
 
-  "clause_2_noise": {                                // CORE -- evaluate SECOND
-      "per_channel_psd": "...",
-      "noise_covariance": "...",                     // the load-bearing field
-      "covariance_anisotropy_K_eff": 27.0,
-      "eps_floor": 0.0192,
-      "eps_floor_percentile": 95,
-      "n_noise_acquisitions": 20,
-      "additive_noise_assumed": true },
+  // CORE -- evaluate SECOND
+  "clause_2_noise": {
+    "per_channel_psd": "...",
+    // load-bearing field
+    "noise_covariance": "...",
+    "covariance_anisotropy_K_eff": 27.0,
+    "eps_floor": 0.0192,
+    "eps_floor_percentile": 95,
+    "n_noise_acquisitions": 20,
+    "additive_noise_assumed": true },
 
-  "clause_1_dimensionality": {                       // CORE -- evaluate THIRD
-      "N_readout": 200,
-      "r_eff_curves": { "per_ensemble": "...",       // one curve per ensemble
-                        "ensemble_sensitivity": "..." },
-      "r_eff_range_over_runs": "...",
-      "record_length": 4000 },
+  // CORE -- evaluate THIRD
+  "clause_1_dimensionality": {
+    "N_readout": 200,
+    "r_eff_curves": {
+      "per_ensemble": "...",
+      "ensemble_sensitivity": "..." },
+    "r_eff_range_over_runs": "...",
+    "record_length": 4000 },
 
-  "clause_3_memory": {                               // ANNEX
-      "MC_curve": [[k, MC_k], ...],
-      "tau_fading": ..., },
+  // ANNEX
+  "clause_3_memory": {
+    "MC_curve": [[k, MC_k], ...],
+    "tau_fading": ... },
 
-  "clause_4_nonlinearity": {                         // ANNEX
-      "tier": 1,
-      "linear_fraction": ..., "nonlinear_fraction": ...,
-      "ipc_spectrum": null },                        // tier 2 optional
+  // ANNEX
+  "clause_4_nonlinearity": {
+    "tier": 1,
+    "linear_fraction": ...,
+    "nonlinear_fraction": ...,
+    "ipc_spectrum": null },  // tier 2
 
-  "clause_6_disorder": {                             // ANNEX
-      "disorder_statistics": "...",
-      "transfer_class": "..." }
+  // ANNEX
+  "clause_6_disorder": {
+    "disorder_statistics": "...",
+    "transfer_class": "..." }
 }</code></pre>
   <p>The <code>input_transfer</code> sub-block exists because the encoder &mdash; electro-optic modulator, spatial light modulator, DAC &mdash; has its own memory, drift, bandwidth, and cross-talk. If the input ensemble is filtered or distorted before it reaches the substrate, the certificate must say so, or every downstream clause inherits an unstated convolution. Core fields carry their own acquisition statistics &mdash; percentiles, run counts, ranges &mdash; because a certificate without repeatability statements is a spec sheet, not metrology.</p>
 </section>
