@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Certificate Before the Compiler</title>
+<meta name="description" content="A conformance certificate schema for physical reservoir computing hardware: a three-clause mandatory core (consistency, correlated-noise floor, effective dimensionality) with a stated evaluation order, plus three extended annex clauses.">
+<style>
+  :root {
+    --bg: #faf8f4;
+    --ink: #21201c;
+    --muted: #6b675e;
+    --rule: #d8d3c8;
+    --accent: #8a4f1d;
+    --block: #f1ede4;
+    --cert-edge: #8a4f1d;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #191a1c;
+      --ink: #d9d7d2;
+      --muted: #97948c;
+      --rule: #3a3b3e;
+      --accent: #d99a55;
+      --block: #222326;
+      --cert-edge: #d99a55;
+    }
+  }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 17px/1.65 Georgia, 'Times New Roman', serif;
+  }
+  main { max-width: 42rem; margin: 0 auto; padding: 2.5rem 1.25rem 5rem; }
+  header { border-bottom: 1px solid var(--rule); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+  h1 { font-size: 1.9rem; line-height: 1.2; margin: 0 0 .5rem; font-weight: normal; }
+  .subtitle { color: var(--muted); font-style: italic; margin: 0 0 1rem; }
+  .meta { font: 13px/1.6 ui-monospace, 'SF Mono', Menlo, monospace; color: var(--muted); }
+  .meta .status { color: var(--accent); }
+  h2 { font-size: 1.25rem; font-weight: normal; margin: 2.5rem 0 .75rem; }
+  h2 .no { font: 13px ui-monospace, monospace; color: var(--accent); margin-right: .6rem; vertical-align: 2px; }
+  h3 { font-size: 1.02rem; margin: 1.6rem 0 .5rem; }
+  p { margin: 0 0 1rem; }
+  a { color: var(--accent); }
+  code, pre { font: 14px/1.55 ui-monospace, 'SF Mono', Menlo, monospace; }
+  code { background: var(--block); padding: .08em .3em; border-radius: 3px; }
+  pre {
+    background: var(--block);
+    padding: 1rem;
+    overflow-x: auto;
+    border-radius: 4px;
+    margin: 0 0 1rem;
+  }
+  pre code { background: none; padding: 0; }
+  .certificate {
+    border: 1px solid var(--cert-edge);
+    border-left: 4px solid var(--cert-edge);
+    border-radius: 4px;
+    padding: 1.1rem 1.2rem;
+    margin: 1.5rem 0;
+    background: var(--block);
+  }
+  .certificate .clause-id {
+    font: 12px ui-monospace, monospace;
+    letter-spacing: .08em;
+    color: var(--accent);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: .35rem;
+  }
+  .certificate h3 { margin: 0 0 .5rem; }
+  .certificate p:last-child { margin-bottom: 0; }
+  figure { margin: 2rem 0; }
+  figure svg { width: 100%; height: auto; }
+  figcaption { font-size: .85rem; color: var(--muted); margin-top: .5rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0 1.5rem; font-size: .92rem; }
+  th, td { text-align: left; padding: .4rem .6rem; border-bottom: 1px solid var(--rule); }
+  th { font: 12px ui-monospace, monospace; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); font-weight: normal; }
+  td.num { font-family: ui-monospace, monospace; font-size: .88rem; }
+  .refs { font-size: .9rem; }
+  .refs li { margin-bottom: .6rem; }
+  footer { border-top: 1px solid var(--rule); margin-top: 3rem; padding-top: 1rem; font-size: .85rem; color: var(--muted); }
+  @media (prefers-reduced-motion: no-preference) {
+    main { animation: settle .4s ease-out; }
+    @keyframes settle { from { opacity: 0; } to { opacity: 1; } }
+  }
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <h1>The Certificate Before the Compiler</h1>
+  <p class="subtitle">A conformance schema for physical reservoir computing hardware</p>
+  <p class="meta">
+    Solbakken Research Initiative &middot; June 2026 &middot; CC0 / public domain &middot; v1.2<br>
+    <span class="status">DRAFT &mdash; round-1 adversarial review + self red-team folded (records in README) &mdash; reference verification incomplete</span>
+  </p>
+</header>
+
+<section>
+  <h2>Abstract</h2>
+  <p>Physical reservoir computing has shipping hardware (an FPGA edge device with at least one industrial sale), funded corporate prototypes (analog and spintronic chips), and a mature software node-graph abstraction &mdash; but no layer connecting the two: any device can be wrapped in Python, yet no standardized characterization interface exists through which a photonic, memristive, spintronic, or nanowire reservoir can present itself to a common software framework. This note argues the missing layer is not a programming language or a compiler. Because the reservoir is fixed and only a linear readout is trained, the software contract is nearly trivial: three calls. What is missing is the <em>characterization certificate</em> a device must return for those calls to be meaningful &mdash; the measured properties that make readout training well-posed, hyperparameter transfer predictable, and benchmark claims comparable across devices. We propose a tiered schema with a stated evaluation order: a three-clause mandatory core &mdash; replica consistency, a noise floor derived from the full inter-channel covariance with a percentile-defined threshold, and &epsilon;-resolved effective dimensionality &mdash; plus three extended annex clauses. The core's binding principle is that correlated noise reduces honest dimensionality while remaining invisible to per-channel specifications; in dense, open, non-Hermitian devices its dominant instance is Petermann-type excess noise from mode non-orthogonality. A worked example on synthetic 200-channel reservoirs shows device pairs with identical per-channel noise power whose honest effective dimensionality differs severalfold: across ten realizations, 140&ndash;176 dimensions for the detector-limited device versus 31&ndash;42 for the correlated-noise device, with naive evaluation overstating the latter 3.4&ndash;3.8&times;. The magnitudes are properties of the toy; the structure of the failure is the claim. A falsification protocol and a conformance certificate are the same object read in opposite directions, and the schema is offered in that spirit, with its own kill condition stated (&sect;10). The certificate, not the compiler, is the precondition for physical reservoir computing as a product category &mdash; a pre-normative standards object for which I found no evidence in current IEC TC&nbsp;113 work items or VAMAS technical working areas.</p>
+</section>
+
+<section>
+  <h2><span class="no">1</span>The gap: software without hardware semantics, hardware without contracts</h2>
+  <p>The software side of reservoir computing (RC) is well served. ReservoirPy implements a computational graph of nodes &mdash; reservoirs, readouts, feedback connections &mdash; composed with an operator syntax and reduced internally to NumPy and SciPy operations [1]. Its designers are explicit that the graph machinery deliberately discards full differentiability: nothing is backpropagated through the reservoir, so no gradient-tape or compiler apparatus exists, because none is needed. PRCpy, more recently, provides a Python pipeline for post-processing experimental physical-reservoir data into readout-ready form [2]. On the hardware side, the one commercially sold reservoir device exposes a standalone gRPC client whose configuration surface is three scalars (a node bias, a memory gain, a node count) and whose output is a state matrix [3]. Corporate prototypes (analog electronic, spintronic) report task accuracies, not device properties.</p>
+  <p>Note what is absent. Any device can of course be wrapped in Python; what no device can do is register itself against a <em>standardized characterization interface</em>, because no shared definition exists of what a reservoir must report about itself before its states are trusted. PRCpy comes closest in spirit but is a data-processing pipeline, not an interface contract: it standardizes what you do with measurements after you have them, not what the device must certify before they mean anything. Each vendor's client is bespoke; each lab's characterization is ad hoc; no two published <code>r_eff</code> or memory-capacity numbers are measured under declared, comparable conditions.</p>
+</section>
+
+<section>
+  <h2><span class="no">2</span>Why physical RC has no programming language &mdash; and is unlikely to need one</h2>
+  <p>The absence of a language is structural, not an immaturity. In RC, learning is confined to a linear readout; the reservoir is a fixed dynamical system whose internal parameters are never addressed, written, or differentiated through [4,&nbsp;5]. A programming language earns its existence when there is something in the substrate to address, route, schedule, or compile. Here, in the currently visible ecosystem, there is nothing: the entire programming model is (i) choose an operating point, (ii) stream inputs, (iii) regress on states. That maps exactly onto existing array libraries, which is why every stack in the field &mdash; academic and commercial &mdash; is Python over NumPy with at most a thin device client underneath. A future device class exposing rich in-substrate control would reopen the question &mdash; and would, by that very fact, be drifting out of reservoir computing.</p>
+  <p>The corollary is the thesis of this note. If the interface cannot carry programs, the only thing it can carry is <em>claims</em> &mdash; claims about dimensionality, memory, nonlinearity, noise, stability, and reproducibility. An interface that carries claims is a certificate. The engineering problem is therefore a metrology problem: specify the claims, pin the measurement protocols, and make the certificate machine-readable so that software can condition readout training on it.</p>
+</section>
+
+<section>
+  <h2><span class="no">3</span>The interface: three calls</h2>
+  <p>The logical minimum interface for a physical reservoir backend is three calls:</p>
+<pre><code>calibrate()  -&gt; Certificate     # lock operating point, measure, certify
+run(U)       -&gt; X               # (T, n_in) input  -&gt; (T, N) state matrix
+report()     -&gt; Certificate     # current certificate + drift since calibrate()</code></pre>
+  <p>Real implementations will add reset, synchronization, streaming, buffer management, and encoder configuration; none of that moves where the content lives. Everything contentful is in the <code>Certificate</code>. A schema sketch (field names indicative, not final):</p>
+<pre><code>{
+  "operating_point":  { "drive_power": ..., "bias": ..., "temperature": ...,
+                        "input_ensembles": ["iid_uniform[-1,1]",
+                                            "ar1_bandlimited(rho=0.9)"],
+                        "bandwidth_window_Hz": [f_min, f_max],
+                        "input_transfer": { "encoder": "EOM | SLM | DAC",
+                                            "bandwidth_Hz": ...,
+                                            "memory": ...,
+                                            "crosstalk": ... } },
+
+  "clause_5_consistency": {                          // CORE -- evaluate FIRST
+      "replica_correlation": ...,
+      "validity_interval_s": ...,
+      "recalibration_trigger": "..." },
+
+  "clause_2_noise": {                                // CORE -- evaluate SECOND
+      "per_channel_psd": "...",
+      "noise_covariance": "...",                     // the load-bearing field
+      "covariance_anisotropy_K_eff": 27.0,
+      "eps_floor": 0.0192,
+      "eps_floor_percentile": 95,
+      "n_noise_acquisitions": 20,
+      "additive_noise_assumed": true },
+
+  "clause_1_dimensionality": {                       // CORE -- evaluate THIRD
+      "N_readout": 200,
+      "r_eff_curves": { "per_ensemble": "...",       // one curve per ensemble
+                        "ensemble_sensitivity": "..." },
+      "r_eff_range_over_runs": "...",
+      "record_length": 4000 },
+
+  "clause_3_memory": {                               // ANNEX
+      "MC_curve": [[k, MC_k], ...],
+      "tau_fading": ..., },
+
+  "clause_4_nonlinearity": {                         // ANNEX
+      "tier": 1,
+      "linear_fraction": ..., "nonlinear_fraction": ...,
+      "ipc_spectrum": null },                        // tier 2 optional
+
+  "clause_6_disorder": {                             // ANNEX
+      "disorder_statistics": "...",
+      "transfer_class": "..." }
+}</code></pre>
+  <p>The <code>input_transfer</code> sub-block exists because the encoder &mdash; electro-optic modulator, spatial light modulator, DAC &mdash; has its own memory, drift, bandwidth, and cross-talk. If the input ensemble is filtered or distorted before it reaches the substrate, the certificate must say so, or every downstream clause inherits an unstated convolution. Core fields carry their own acquisition statistics &mdash; percentiles, run counts, ranges &mdash; because a certificate without repeatability statements is a spec sheet, not metrology.</p>
+</section>
+
+<section>
+  <h2><span class="no">4</span>The clauses: a three-clause core, three annexes, one evaluation order</h2>
+  <p>The schema is tiered, and the core has a mandatory evaluation order: <strong>Clause&nbsp;5, then Clause&nbsp;2, then Clause&nbsp;1</strong>. The order is not bureaucratic. If the device fails consistency, the state matrix is not a reproducible object and every downstream measurement quantifies nothing stable; if the noise floor is not established, dimensionality is evaluated against an unknown baseline. Consistency gates noise, noise gates dimensionality. Clauses 3, 4, and 6 are extended annexes. A vendor unwilling to issue the core has nothing verifiable to sell; a vendor unable to issue the annexes has something to sell with stated limits. The tiering also reflects this note's own argumentative weight: the core is argued, the annexes are sketched, and hardening the annex protocols is precisely what the interlaboratory work of &sect;9 exists to do.</p>
+
+  <div class="certificate">
+    <span class="clause-id">Core &middot; Clause 5 &middot; evaluate first</span>
+    <h3>Consistency and drift</h3>
+    <p>The echo-state property cannot be proven from equations for a physical device; it must be measured. Report the replica-test consistency correlation &mdash; drive the device twice with the same input from different initial conditions and measure response convergence [10] &mdash; plus a drift specification: the validity interval of trained readout weights, temperature coefficients, and the recalibration trigger. This clause is core, not annex, for a structural reason: noise that enters <em>inside</em> the dynamics is processed by the same nonlinearity as the signal and is not separable from it by any spectral thresholding of the state matrix. The replica test is the instrument that sees dynamical noise. Clauses 2 and 1 are well-posed only on a device this clause has already passed.</p>
+  </div>
+
+  <div class="certificate">
+    <span class="clause-id">Core &middot; Clause 2 &middot; binding</span>
+    <h3>Noise floor, including correlated noise</h3>
+    <p>Report the per-channel noise power spectral density <em>and</em> the inter-channel noise covariance matrix, from noise-only acquisitions at the certified operating point, and derive <strong>&epsilon;<sub>floor</sub></strong>: a stated percentile (the worked example uses the 95th) of the rescaled largest noise singular value over a stated number of independent acquisitions (&ge;&thinsp;20). A single-realization threshold is not acceptable: the largest singular value of a finite-record noise matrix is a random variable with a fluctuating spectral edge, and a point estimate of a fluctuating maximum is not metrology. The binding principle is substrate-agnostic: correlated noise concentrates in specific state-space directions, raising the floor far above what per-channel power suggests, and no per-channel SNR specification can detect it. In dense, open, non-Hermitian devices &mdash; the regime the most computationally ambitious reservoirs inhabit &mdash; the dominant instance is Petermann-type excess noise from mode non-orthogonality [7,&nbsp;12,&nbsp;13]. For substrates far from that regime, the clause reduces to ordinary covariance bookkeeping at the cost of one extra measurement. That asymmetry is the point: the certificate does not assume the regime, it detects it. Scope, stated plainly: this clause's separation logic addresses noise additive at the readout chain (<code>additive_noise_assumed</code> is a schema field, not fine print); dynamical noise is Clause&nbsp;5's province. Section&nbsp;5 develops the photonic instance; Section&nbsp;6 quantifies the failure mode.</p>
+  </div>
+
+  <div class="certificate">
+    <span class="clause-id">Core &middot; Clause 1 &middot; evaluate third</span>
+    <h3>Effective dimensionality, &epsilon;-resolved, two ensembles</h3>
+    <p>Report not the readout channel count <em>N</em> but <em>r</em><sub>eff</sub>(&epsilon;): the number of singular values of the mean-centred state matrix exceeding &epsilon;&thinsp;&middot;&thinsp;&sigma;<sub>max</sub>, under a pinned input ensemble, drive power, and record length [6], evaluated only at &epsilon;&nbsp;&ge;&nbsp;&epsilon;<sub>floor</sub>. A scalar is meaningless because the quantity is ensemble- and power-dependent; the certificate reports the curve and pins both. Certification under a single ensemble invites tuning the operating point to the test, so the core requires at least two declared ensembles &mdash; an i.i.d. reference and a band-limited temporally correlated ensemble &mdash; with the difference between their <em>r</em><sub>eff</sub> curves reported as an input-sensitivity measure in its own right. Conformance tests of the form <em>r</em><sub>eff</sub>(&middot;&thinsp;;&thinsp;&epsilon;) &ge; <em>r</em><sub>min</sub> &mdash; or, as a kill condition, &le; <em>r</em><sub>max</sub> &mdash; are instances of this clause.</p>
+  </div>
+
+  <div class="certificate">
+    <span class="clause-id">Annex &middot; Clause 3</span>
+    <h3>Memory</h3>
+    <p>Report the linear memory-capacity curve MC(<em>k</em>) [8] and a fading-memory timescale, measured at the same operating point as Clause&nbsp;1, together with the valid input-bandwidth window: physical reservoirs have intrinsic timescales, and fading memory holds only inside a symbol-rate band the certificate must state explicitly.</p>
+  </div>
+
+  <div class="certificate">
+    <span class="clause-id">Annex &middot; Clause 4</span>
+    <h3>Nonlinearity (tiered)</h3>
+    <p>Tier&nbsp;1: a Volterra-like linear/nonlinear variance split on a standard delayed-input sequence &mdash; cheap enough that every vendor can issue it. Tier&nbsp;2: the full information-processing-capacity decomposition over polynomial degree [9], attractive because total IPC is bounded by the number of linearly independent state variables &mdash; a built-in cross-check on Clause&nbsp;1 &mdash; and because it unifies memory and nonlinearity in one normalized spectrum. Tiering is deliberate: IPC is measurement-expensive, and a certificate no vendor can afford to issue is dead on arrival.</p>
+  </div>
+
+  <div class="certificate">
+    <span class="clause-id">Annex &middot; Clause 6</span>
+    <h3>Disorder statistics and transferability</h3>
+    <p>No two physical reservoirs are identical, so the certificate cannot promise weight portability &mdash; only that <em>hyperparameters</em> transfer predictably between devices of the same class. That requires reporting the device's disorder-field statistics: measure the disorder field first, then state the transfer class it implies. A transfer class is defined by statistical invariance, not pattern identity &mdash; individual disorder realizations differ, but the ensemble they are drawn from must match within stated tolerances: its covariance scaling laws, and, where a random-matrix description applies, the invariance of singular-value-spectrum statistics across devices. This clause is what separates a reproducible product category from a collection of artisanal one-offs.</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="no">5</span>Clause 2 in depth: the excess-noise floor</h2>
+  <p>The principle of Clause&nbsp;2 is substrate-agnostic; this section develops its sharpest known instance. The standard practice &mdash; implicit in nearly every physical-RC paper &mdash; is to count dimensions down to whatever threshold the detection chain permits. For a closed, near-Hermitian system with independent per-channel noise this is defensible: the noise covariance is approximately &sigma;&sup2;<em>I</em>, its singular spectrum is flat, and a floor estimated from per-channel power separates signal from noise directions.</p>
+  <p>An open cavity driven above transparency is not that system. Its modes are the eigenvectors of a non-Hermitian operator and are in general non-orthogonal; the projection of broadband fluctuations onto a non-orthogonal basis carries the Petermann excess factor, which grows with mode non-orthogonality and diverges toward exceptional points [7,&nbsp;12,&nbsp;13]. Two consequences matter for the certificate. First, the noise floor rises: &epsilon;<sub>floor</sub> scales with the largest singular value of the noise covariance, not with the per-channel power. Second, and less obviously, the excess noise is structured: it concentrates in the subspace spanned by the most non-orthogonal mode pairs, so the noise covariance is far from &sigma;&sup2;<em>I</em>. A device characterized only by per-channel SNR will pass inspection while a substantial fraction of its claimed state space is noise-dominated.</p>
+  <p>This is precisely the regime in which a disordered open cavity must operate to be interesting as a reservoir: high effective dimensionality is purchased with mode density and openness, and mode density plus openness is what drives non-orthogonality. The excess-noise floor is therefore not a corner case but the generic operating condition of the most computationally ambitious physical reservoirs. The certificate clause that captures it &mdash; noise covariance, anisotropy, percentile floor &mdash; is the clause that does the real work.</p>
+</section>
+
+<section>
+  <h2><span class="no">6</span>Worked example</h2>
+  <p>Synthetic driven reservoirs (<em>N</em>&nbsp;=&nbsp;200 channels, <em>T</em>&nbsp;=&nbsp;4000 steps, tanh echo-state dynamics, spectral radius 0.9, i.i.d. uniform input; ten independent device realizations) are measured under two noise models with <strong>identical mean per-channel noise power</strong> (&sigma;&sup2;&nbsp;=&nbsp;4.0&times;10<sup>&minus;4</sup>):</p>
+  <p><strong>Case&nbsp;A</strong> &mdash; detector-limited: i.i.d. Gaussian noise, independent across channels. <strong>Case&nbsp;B</strong> &mdash; correlated noise: the same average power injected through a non-orthogonal mixing basis, giving a covariance anisotropy ratio <em>K</em><sub>eff</sub>&nbsp;&asymp;&nbsp;27 (largest-to-mean eigenvalue of the noise covariance &mdash; analogous in role to a Petermann excess factor, though not constructed from mode non-orthogonality). Floors are percentile-defined per Clause&nbsp;2: the 95th percentile of the rescaled largest noise singular value over 20 independent noise-only acquisitions. The single-file simulation (<code>certificate_demo.py</code>, NumPy only, fixed seeds) reproduces every number below.</p>
+
+  <figure>
+<svg viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg"
+     role="img" aria-label="Effective dimensionality versus epsilon threshold
+     under detector-limited and correlated noise, with percentile-defined
+     noise floors">
+  <style>
+    .ax { stroke: currentColor; stroke-width: 1; opacity: .5; }
+    .tick, .lab, .leg { font: 11px ui-monospace, monospace;
+                         fill: currentColor; }
+    .cA { stroke: #4f8edb; stroke-width: 2; fill: none; }
+    .cB { stroke: #d96f32; stroke-width: 2; fill: none; }
+    .fA { stroke: #4f8edb; stroke-width: 1; stroke-dasharray: 4 3; }
+    .fB { stroke: #d96f32; stroke-width: 1; stroke-dasharray: 4 3; }
+  </style>
+  <line class="ax" x1="50" y1="310" x2="590" y2="310"/>
+  <line class="ax" x1="50" y1="50" x2="50" y2="310"/>
+  <text class="tick" x="50" y="328" text-anchor="middle">10<tspan baseline-shift="super" font-size="8">-4</tspan></text><text class="tick" x="185" y="328" text-anchor="middle">10<tspan baseline-shift="super" font-size="8">-3</tspan></text><text class="tick" x="320" y="328" text-anchor="middle">10<tspan baseline-shift="super" font-size="8">-2</tspan></text><text class="tick" x="455" y="328" text-anchor="middle">10<tspan baseline-shift="super" font-size="8">-1</tspan></text><text class="tick" x="590" y="328" text-anchor="middle">10<tspan baseline-shift="super" font-size="8">0</tspan></text><text class="tick" x="42" y="314" text-anchor="end">0</text><text class="tick" x="42" y="249" text-anchor="end">50</text><text class="tick" x="42" y="184" text-anchor="end">100</text><text class="tick" x="42" y="119" text-anchor="end">150</text><text class="tick" x="42" y="54" text-anchor="end">200</text>
+  <text class="tick" x="320.0" y="352" text-anchor="middle">
+    threshold &#949; (relative to &#963;&#8321;)</text>
+  <text class="tick" x="14" y="180.0" text-anchor="middle"
+        transform="rotate(-90 14 180.0)">r&#8337;&#8202;&#8202;(&#949;)</text>
+  <path class="cA" d="M 50.0,50.0 L 52.7,50.0 L 55.4,50.0 L 58.1,50.0 L 60.9,50.0 L 63.6,50.0 L 66.3,50.0 L 69.0,50.0 L 71.7,50.0 L 74.4,50.0 L 77.1,50.0 L 79.8,50.0 L 82.6,50.0 L 85.3,50.0 L 88.0,50.0 L 90.7,50.0 L 93.4,50.0 L 96.1,50.0 L 98.8,50.0 L 101.6,50.0 L 104.3,50.0 L 107.0,50.0 L 109.7,50.0 L 112.4,50.0 L 115.1,50.0 L 117.8,50.0 L 120.6,50.0 L 123.3,50.0 L 126.0,50.0 L 128.7,50.0 L 131.4,50.0 L 134.1,50.0 L 136.8,50.0 L 139.5,50.0 L 142.3,50.0 L 145.0,50.0 L 147.7,50.0 L 150.4,50.0 L 153.1,50.0 L 155.8,50.0 L 158.5,50.0 L 161.3,50.0 L 164.0,50.0 L 166.7,50.0 L 169.4,50.0 L 172.1,50.0 L 174.8,50.0 L 177.5,50.0 L 180.3,50.0 L 183.0,50.0 L 185.7,50.0 L 188.4,50.0 L 191.1,50.0 L 193.8,50.0 L 196.5,50.0 L 199.2,50.0 L 202.0,50.0 L 204.7,50.0 L 207.4,50.0 L 210.1,50.0 L 212.8,50.0 L 215.5,50.0 L 218.2,50.0 L 221.0,50.0 L 223.7,50.0 L 226.4,50.0 L 229.1,50.0 L 231.8,50.0 L 234.5,50.0 L 237.2,50.0 L 239.9,50.0 L 242.7,50.0 L 245.4,50.0 L 248.1,50.0 L 250.8,50.0 L 253.5,50.0 L 256.2,50.0 L 258.9,50.0 L 261.7,50.0 L 264.4,57.8 L 267.1,68.2 L 269.8,82.5 L 272.5,96.8 L 275.2,108.5 L 277.9,121.5 L 280.7,131.9 L 283.4,142.3 L 286.1,154.0 L 288.8,163.1 L 291.5,169.6 L 294.2,176.1 L 296.9,183.9 L 299.6,191.7 L 302.4,198.2 L 305.1,202.1 L 307.8,208.6 L 310.5,212.5 L 313.2,217.7 L 315.9,221.6 L 318.6,226.8 L 321.4,228.1 L 324.1,233.3 L 326.8,237.2 L 329.5,238.5 L 332.2,242.4 L 334.9,245.0 L 337.6,247.6 L 340.4,250.2 L 343.1,254.1 L 345.8,256.7 L 348.5,259.3 L 351.2,261.9 L 353.9,265.8 L 356.6,265.8 L 359.3,267.1 L 362.1,268.4 L 364.8,271.0 L 367.5,273.6 L 370.2,276.2 L 372.9,277.5 L 375.6,277.5 L 378.3,278.8 L 381.1,281.4 L 383.8,282.7 L 386.5,282.7 L 389.2,284.0 L 391.9,286.6 L 394.6,286.6 L 397.3,287.9 L 400.1,291.8 L 402.8,291.8 L 405.5,291.8 L 408.2,293.1 L 410.9,295.7 L 413.6,295.7 L 416.3,297.0 L 419.0,297.0 L 421.8,297.0 L 424.5,297.0 L 427.2,298.3 L 429.9,299.6 L 432.6,300.9 L 435.3,300.9 L 438.0,300.9 L 440.8,300.9 L 443.5,300.9 L 446.2,300.9 L 448.9,302.2 L 451.6,302.2 L 454.3,302.2 L 457.0,302.2 L 459.7,302.2 L 462.5,302.2 L 465.2,302.2 L 467.9,302.2 L 470.6,303.5 L 473.3,303.5 L 476.0,303.5 L 478.7,303.5 L 481.5,303.5 L 484.2,303.5 L 486.9,303.5 L 489.6,303.5 L 492.3,303.5 L 495.0,304.8 L 497.7,304.8 L 500.5,304.8 L 503.2,304.8 L 505.9,304.8 L 508.6,304.8 L 511.3,304.8 L 514.0,306.1 L 516.7,306.1 L 519.4,306.1 L 522.2,306.1 L 524.9,306.1 L 527.6,306.1 L 530.3,306.1 L 533.0,306.1 L 535.7,306.1 L 538.4,307.4 L 541.2,307.4 L 543.9,307.4 L 546.6,307.4 L 549.3,307.4 L 552.0,307.4 L 554.7,307.4 L 557.4,307.4 L 560.2,307.4 L 562.9,307.4 L 565.6,308.7 L 568.3,308.7 L 571.0,308.7 L 573.7,308.7 L 576.4,308.7 L 579.1,308.7 L 581.9,308.7 L 584.6,308.7 L 587.3,308.7 L 590.0,310.0"/>
+  <path class="cB" d="M 50.0,50.0 L 52.7,50.0 L 55.4,50.0 L 58.1,50.0 L 60.9,50.0 L 63.6,50.0 L 66.3,50.0 L 69.0,50.0 L 71.7,50.0 L 74.4,50.0 L 77.1,50.0 L 79.8,50.0 L 82.6,50.0 L 85.3,50.0 L 88.0,50.0 L 90.7,50.0 L 93.4,50.0 L 96.1,50.0 L 98.8,50.0 L 101.6,50.0 L 104.3,50.0 L 107.0,50.0 L 109.7,50.0 L 112.4,50.0 L 115.1,50.0 L 117.8,50.0 L 120.6,50.0 L 123.3,50.0 L 126.0,50.0 L 128.7,50.0 L 131.4,50.0 L 134.1,50.0 L 136.8,50.0 L 139.5,50.0 L 142.3,50.0 L 145.0,50.0 L 147.7,50.0 L 150.4,50.0 L 153.1,50.0 L 155.8,50.0 L 158.5,50.0 L 161.3,50.0 L 164.0,50.0 L 166.7,50.0 L 169.4,50.0 L 172.1,50.0 L 174.8,50.0 L 177.5,50.0 L 180.3,50.0 L 183.0,50.0 L 185.7,50.0 L 188.4,50.0 L 191.1,50.0 L 193.8,50.0 L 196.5,50.0 L 199.2,50.0 L 202.0,50.0 L 204.7,50.0 L 207.4,50.0 L 210.1,51.3 L 212.8,51.3 L 215.5,55.2 L 218.2,57.8 L 221.0,60.4 L 223.7,65.6 L 226.4,69.5 L 229.1,74.7 L 231.8,78.6 L 234.5,81.2 L 237.2,86.4 L 239.9,91.6 L 242.7,96.8 L 245.4,100.7 L 248.1,105.9 L 250.8,111.1 L 253.5,116.3 L 256.2,121.5 L 258.9,126.7 L 261.7,131.9 L 264.4,135.8 L 267.1,142.3 L 269.8,148.8 L 272.5,152.7 L 275.2,156.6 L 277.9,160.5 L 280.7,164.4 L 283.4,168.3 L 286.1,174.8 L 288.8,178.7 L 291.5,182.6 L 294.2,187.8 L 296.9,190.4 L 299.6,195.6 L 302.4,200.8 L 305.1,204.7 L 307.8,207.3 L 310.5,211.2 L 313.2,213.8 L 315.9,217.7 L 318.6,220.3 L 321.4,222.9 L 324.1,225.5 L 326.8,229.4 L 329.5,232.0 L 332.2,235.9 L 334.9,239.8 L 337.6,241.1 L 340.4,245.0 L 343.1,248.9 L 345.8,252.8 L 348.5,255.4 L 351.2,258.0 L 353.9,261.9 L 356.6,264.5 L 359.3,265.8 L 362.1,268.4 L 364.8,271.0 L 367.5,273.6 L 370.2,274.9 L 372.9,276.2 L 375.6,277.5 L 378.3,278.8 L 381.1,281.4 L 383.8,281.4 L 386.5,282.7 L 389.2,284.0 L 391.9,286.6 L 394.6,286.6 L 397.3,289.2 L 400.1,291.8 L 402.8,291.8 L 405.5,291.8 L 408.2,293.1 L 410.9,294.4 L 413.6,295.7 L 416.3,297.0 L 419.0,297.0 L 421.8,297.0 L 424.5,297.0 L 427.2,298.3 L 429.9,299.6 L 432.6,300.9 L 435.3,300.9 L 438.0,300.9 L 440.8,300.9 L 443.5,300.9 L 446.2,300.9 L 448.9,302.2 L 451.6,302.2 L 454.3,302.2 L 457.0,302.2 L 459.7,302.2 L 462.5,302.2 L 465.2,302.2 L 467.9,302.2 L 470.6,303.5 L 473.3,303.5 L 476.0,303.5 L 478.7,303.5 L 481.5,303.5 L 484.2,303.5 L 486.9,303.5 L 489.6,303.5 L 492.3,303.5 L 495.0,304.8 L 497.7,304.8 L 500.5,304.8 L 503.2,304.8 L 505.9,304.8 L 508.6,304.8 L 511.3,304.8 L 514.0,306.1 L 516.7,306.1 L 519.4,306.1 L 522.2,306.1 L 524.9,306.1 L 527.6,306.1 L 530.3,306.1 L 533.0,306.1 L 535.7,306.1 L 538.4,307.4 L 541.2,307.4 L 543.9,307.4 L 546.6,307.4 L 549.3,307.4 L 552.0,307.4 L 554.7,307.4 L 557.4,307.4 L 560.2,307.4 L 562.9,307.4 L 565.6,308.7 L 568.3,308.7 L 571.0,308.7 L 573.7,308.7 L 576.4,308.7 L 579.1,308.7 L 581.9,308.7 L 584.6,308.7 L 587.3,308.7 L 590.0,308.7"/>
+  <line class="fA" x1="275.8" y1="50" x2="275.8" y2="310"/><text class="lab" x="280.8" y="64">&#949;_floor p95 (det.)</text>
+  <line class="fB" x1="364.4" y1="50" x2="364.4" y2="310"/><text class="lab" x="369.4" y="64">&#949;_floor p95 (corr.)</text>
+  <text class="leg" x="410" y="70">
+    &#9644; detector-limited (A)</text>
+  <text class="leg" x="410" y="86" fill="#d96f32">
+    &#9644; correlated (B)</text>
+</svg>
+    <figcaption>Figure 1. &epsilon;-resolved effective dimensionality for the two noise cases (representative realization, seed&nbsp;7). Identical per-channel noise power; the correlated noise of Case&nbsp;B (orange) moves the percentile-defined evaluation threshold &epsilon;<sub>floor</sub> from 0.0047 to 0.0213. Reading Case&nbsp;B at Case&nbsp;A's floor reports 118 dimensions; the certificate-correct value is 31. Magnitudes are properties of the toy's parameters (twelve mixing modes, coupling 6.0), not of any physical platform &mdash; the structure of the failure, not its size, is the claim; the table reports the spread over ten realizations.</figcaption>
+  </figure>
+
+  <table>
+    <thead>
+      <tr><th>Quantity (mean [min, max], 10 seeds)</th><th>Case A (detector)</th><th>Case B (correlated)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Mean per-channel noise power</td><td class="num">4.0&times;10<sup>&minus;4</sup></td><td class="num">4.0&times;10<sup>&minus;4</sup></td></tr>
+      <tr><td>Covariance anisotropy <em>K</em><sub>eff</sub></td><td class="num">&asymp;&thinsp;1</td><td class="num">27.0 [25.6, 29.6]</td></tr>
+      <tr><td>&epsilon;<sub>floor</sub> (p95, 20 acquisitions)</td><td class="num">0.0044 [0.0043, 0.0047]</td><td class="num">0.0192 [0.0184, 0.0213]</td></tr>
+      <tr><td><em>r</em><sub>eff</sub> at detector-limited &epsilon;</td><td class="num">158 [140, 176]</td><td class="num">124 [106, 143]</td></tr>
+      <tr><td><em>r</em><sub>eff</sub> at own &epsilon;<sub>floor</sub> (honest)</td><td class="num">158 [140, 176]</td><td class="num"><strong>35 [31, 42]</strong></td></tr>
+    </tbody>
+  </table>
+
+  <p>The two devices are indistinguishable on any per-channel specification. Their honest computational dimensionalities differ severalfold on every realization. The naive evaluation of Case&nbsp;B overstates its dimensionality 3.5&times; on average ([3.4,&nbsp;3.8] across seeds) &mdash; the bulk of its apparent dimensions are noise. Only the covariance field of Clause&nbsp;2 distinguishes the cases, which is the empirical content of the claim that the certificate, and specifically its noise-covariance clause, is load-bearing. The result also survived its own tightening: moving from a single-realization floor (v1.1) to the percentile definition left every headline quantity within its seed-to-seed spread. (A methodological echo: metrics validated under i.i.d. noise routinely die under correlated noise; assuming the former is how dimensionality claims in this field go wrong.)</p>
+  <p>What the toy does and does not show. It demonstrates that structured noise correlation degrades honest dimensionality and that per-channel specifications cannot detect this. It does <em>not</em> reproduce Petermann physics: the correlation structure of real excess noise is set by mode overlaps and gain profiles the toy does not contain, and its mixing matrix is a generic non-orthogonal basis, not a cavity's. The toy also certifies under a single input ensemble, where the schema requires two; the correlated-ensemble run is deferred with the rest of the upgrade path (&sect;10): replacing the toy's mixing matrix with mode data from an open-boundary cavity simulation.</p>
+</section>
+
+<section>
+  <h2><span class="no">7</span>The certificate predicts trainability</h2>
+  <p>The certificate is not documentation; it is a pre-training predictor. Ridge regression on the state matrix is conditioned by the singular-value spectrum that Clause&nbsp;1 reports: generalization is bounded by the number of state directions that stand above &epsilon;<sub>floor</sub>, and Clause&nbsp;2 sets the minimum sensible regularization &mdash; a ridge parameter below the noise-implied scale fits structured noise by construction, and the resulting readout degrades on deployment. Clause&nbsp;3's bandwidth window bounds the task class; Clause&nbsp;5's validity interval bounds the deployment model. A purchaser can read achievable readout performance off the certificate before training a single weight. That &mdash; not vendor benchmarks on MNIST &mdash; is what would make physical reservoirs procurable.</p>
+</section>
+
+<section>
+  <h2><span class="no">8</span>An instance in the wild: a kill condition as a Clause-1 test</h2>
+  <p>The author's own speculative cavity-reservoir program (a plano-hemispherical disordered cavity, documented separately) carries the pre-registered kill condition <em>r</em><sub>eff</sub>(<em>N</em><sub>f</sub>&nbsp;=&nbsp;50;&nbsp;&epsilon;) &le; 50: if fifty frequency channels do not yield more than fifty effective dimensions, the architecture has no reason to exist. In the present vocabulary that is exactly a Clause-1 conformance test &mdash; and the analysis above says it is well-posed only on a device that has passed Clause&nbsp;5, at an &epsilon; pinned at or above the Clause-2 percentile floor, measured with the noise covariance, not the per-channel power. A falsification protocol and a conformance certificate are the same object viewed from opposite sides: one is written to let a device fail, the other to let it pass, and both are empty without the metrology underneath.</p>
+</section>
+
+<section>
+  <h2><span class="no">9</span>Standards positioning: a roadmap, not an announcement</h2>
+  <p>The certificate is a pre-normative standards object. I found no evidence, in current IEC TC&nbsp;113 work items or VAMAS technical working areas, of measurement protocols for &epsilon;-resolved dimensionality, noise covariance, memory capacity, or consistency in computing devices; existing nanotechnology specifications stop at materials classification, and photonic-integration metrology efforts target transceivers. That absence is unsurprising &mdash; most emerging device classes lack spec vocabulary &mdash; so the claim here is not the gap but the route through it: <em>first</em>, a shared open test suite implementing the three core clauses in software, runnable against any device exposing the three-call interface; <em>second</em>, an interlaboratory round robin on two dissimilar substrates, one photonic and one memristive &mdash; the natural VAMAS-style vehicle; <em>third</em>, draft vocabulary written from the round robin's discrepancies, which is where measurement vocabulary actually comes from.</p>
+  <p>One precondition is open and stated plainly: whether noise covariance, replica consistency, and &epsilon;-resolved rank can be measured <em>comparably</em> on a cavity, a crossbar, and a spintronic oscillator is itself unestablished. If they cannot, the certificate is not substrate-agnostic, and the schema degrades to per-substrate-class profiles &mdash; still useful, but a smaller claim. Whoever runs the round robin first defines the vocabulary the field's first real procurement contracts will use.</p>
+</section>
+
+<section>
+  <h2><span class="no">10</span>What would make this note wrong</h2>
+  <p>Four failure modes are stated in advance. (i)&nbsp;<em>The clauses are the wrong set.</em> If a property outside this schema routinely dominates device usability &mdash; the input-transfer sub-block exists because encoding nonidealities were the first identified candidate &mdash; the schema is incomplete and the framing fails. (ii)&nbsp;<em>The correlated-noise clause is not binding in practice.</em> If surveyed physical reservoirs operate with near-isotropic noise covariance (<em>K</em><sub>eff</sub>&nbsp;&asymp;&nbsp;1 across photonic and non-photonic substrates alike), Clause&nbsp;2 reduces to ordinary SNR and the note's central claim collapses to bookkeeping. The clause earns "binding" status only in dense, open, disordered regimes; whether commercially relevant reservoirs live there is an empirical question. (iii)&nbsp;<em>The market never demands certification.</em> Bilateral validation may simply outcompete certification, as it has repeatedly: GPUs for machine learning, FPGAs for high-frequency trading, and mining ASICs all matured on bilateral validation, with spec-sheet vocabulary arriving after the market rather than before. The certificate bets that physical RC differs because its value proposition <em>is</em> the certificate's contents &mdash; dynamical-systems properties rather than FLOPS &mdash; but that is an argument, not a fact. (iv)&nbsp;<em>The certificate fails its own predictive test.</em> The schema earns adoption only if its measured clauses predict task performance better than the existing ad hoc pair &mdash; per-channel SNR plus channel count. The &sect;9 round robin is the venue: measure the clauses on two real reservoirs, predict trainability, compare against realized performance. If the certificate is not the better predictor, it is bookkeeping and should be discarded by its own standard.</p>
+  <p>The worked example is a toy by design: a tanh network with synthetic correlated noise demonstrates the <em>logic</em> of the clause structure, not the physics of any real cavity. The quantitative claims are properties of the toy's parameters, not of nature, and the toy certifies one input ensemble where the schema demands two. Replacing the toy with mode data from an open-boundary FDTD simulation of a real disordered-cavity geometry is the necessary next step before any of this is more than a schema proposal.</p>
+</section>
+
+<section>
+  <h2>References</h2>
+  <p style="font-size:.85rem;color:var(--muted)">Verification status per reference is tracked in the repository README. Per project policy, every DOI must resolve to the claimed title and authors before deployment.</p>
+  <ol class="refs">
+    <li>N. Trouvain, L. Pedrelli, T. T. Dinh, X. Hinaut, &ldquo;ReservoirPy: An Efficient and User-Friendly Library to Design Echo State Networks,&rdquo; ICANN 2020, LNCS, Springer. doi:10.1007/978-3-030-61616-8_40. <em>[verified]</em></li>
+    <li>PRCpy: A Python Package for Processing of Physical Reservoir Computing. arXiv:2410.18356. <em>[verified: arXiv listing]</em></li>
+    <li>Quantum Computing Inc., <code>emucore-direct</code>: client package for the EmuCore FPGA reservoir computer. PyPI. <em>[verified: PyPI listing]</em></li>
+    <li>H. Jaeger, &ldquo;The 'echo state' approach to analysing and training recurrent neural networks,&rdquo; GMD Report 148, German National Research Center for Information Technology, 2001. <em>[technical report &mdash; no DOI]</em></li>
+    <li>W. Maass, T. Natschl&auml;ger, H. Markram, &ldquo;Real-time computing without stable states,&rdquo; Neural Computation 14(11), 2531&ndash;2560 (2002). <em>[pending verification]</em></li>
+    <li>O. Roy, M. Vetterli, &ldquo;The effective rank: a measure of effective dimensionality,&rdquo; EUSIPCO 2007, 606&ndash;610. <em>[verified: cited listing]</em></li>
+    <li>K. Petermann, &ldquo;Calculated spontaneous emission factor for double-heterostructure injection lasers with gain-induced waveguiding,&rdquo; IEEE J. Quantum Electron. QE-15, 566 (1979). <em>[pending verification]</em></li>
+    <li>H. Jaeger, &ldquo;Short term memory in echo state networks,&rdquo; GMD Report 152, 2002. <em>[technical report &mdash; no DOI]</em></li>
+    <li>J. Dambre, D. Verstraeten, B. Schrauwen, S. Massar, &ldquo;Information Processing Capacity of Dynamical Systems,&rdquo; Sci. Rep. 2, 514 (2012). doi:10.1038/srep00514. <em>[verified]</em></li>
+    <li>A. Uchida, R. McAllister, R. Roy, &ldquo;Consistency of Nonlinear System Response to Complex Drive Signals,&rdquo; Phys. Rev. Lett. 93, 244102 (2004). doi:10.1103/PhysRevLett.93.244102. <em>[verified]</em></li>
+    <li>G. Tanaka et al., &ldquo;Recent advances in physical reservoir computing: a review,&rdquo; Neural Networks 115, 100&ndash;123 (2019). <em>[pending DOI verification]</em></li>
+    <li>&ldquo;Petermann-factor sensitivity limit near an exceptional point in a Brillouin ring laser gyroscope,&rdquo; Nat. Commun. 11 (2020). doi:10.1038/s41467-020-15341-6. <em>[DOI from publisher URL; author list pending verification]</em></li>
+    <li>&ldquo;Generalized Petermann factor of non-Hermitian systems at exceptional points,&rdquo; APS (2025). <em>[pending full verification, incl. DOI]</em></li>
+  </ol>
+</section>
+
+<footer>
+  <p>CC0 1.0 Universal &mdash; public domain. No rights reserved. Solbakken Research Initiative, Omaha NE.<br>
+  Companion simulation: <code>certificate_demo.py</code> (NumPy only, fixed seeds, reproduces all figures and tables).<br>
+  v1.2 &mdash; self red-team folded: percentile-defined &epsilon;<sub>floor</sub>, consistency promoted to core with stated evaluation order, additive-noise scope stated, two-ensemble requirement, multi-seed reporting. v1.1 &mdash; round-1 adversarial review (DeepSeek, ChatGPT, Perplexity, Gemini) triaged and folded. Records in README.</p>
+</footer>
+
+</main>
+</body>
+</html>
